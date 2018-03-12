@@ -19,15 +19,11 @@ celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
 
 fileformat = re.compile(r'(\w*)\.(\w*)')
-departments = Department.query.all()
-list_departments = []
-for dept in departments:
-    list_departments.append(dept.department)
 semesters = [i for i in range(1, 9)]
+
 def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
-
 
 @celery.task
 def indexing(filename):
@@ -77,6 +73,13 @@ def faq():
 def index():
     form = Search()
     if request.method == 'GET':
+        #Incase a department was added later, the server wouldn't have to be taken down
+        #And also get's rid of the painful circular dependency
+        departments = Department.query.all()
+        list_departments = []
+        for dept in departments:
+            list_departments.append(dept.department)
+        
         return render_template('home.html', title='FireNotes', x=list_departments,search_form = form)
     elif request.method == 'POST':
         if form.validate_on_submit():
