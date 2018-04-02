@@ -1,7 +1,7 @@
 from app import db
 
 class User(db.Model):
-    rollNo = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(60), primary_key=True)
     year = db.Column(db.Integer)
     dept = db.Column(db.String(60))
     authenticated= db.Column(db.Boolean,default=False)
@@ -16,10 +16,10 @@ class User(db.Model):
         return False
 
     def get_id(self):
-        return self.rollNo
+        return self.username
 
     def __repr__(self):
-        return '<User %r>' % (self.rollNo)
+        return '<User %r>' % (self.username)
 
 
 class Department(db.Model):
@@ -42,18 +42,27 @@ class files(db.Model):
     filename = db.Column(db.String(64), index=True)
     department = db.Column(db.String(64), index=True)
     semester = db.Column(db.Integer, index=True)
-    author = db.Column(db.String(64) , index =True)
-    tags = db.Column(db.String(64) , index= True)
-    description = db.Column(db.String(100) , index= True)
-    downloads = db.Column(db.Integer , index = True)
-    uploader = db.Column(db.String(64)  , index = True)
-    upload_date = db.Column(db.DateTime()  , index = True)
+    author = db.Column(db.String(64), index=True)
+    description = db.Column(db.String(100), index=True)
+    downloads = db.Column(db.Integer, index=True)
+    uploader = db.Column(db.String(64), index=True)
+    upload_date = db.Column(db.DateTime(), index=True)
     def __repr__(self):
         return '<File {0}-> {1} >'.format(self.filename, self.department)
 
+class Tags(db.Model):
+    # this table will be in the form (file_id, tag)
+    id = db.Column(db.Integer, primary_key=True)
+    fileid = db.Column(db.Integer, db.ForeignKey('files.id'), index=True)
+    tag = db.Column(db.String(64), index=True)
+
+class TagDetails(db.Model):
+    # this table will contain data describing each tag
+    id = db.Column(db.Integer, primary_key=True)
+    tag = db.Column(db.String(64), primary_key=True, index=True)
+    description = db.Column(db.String(100), index=True)
 
 class stars(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     file_id = db.Column(db.Integer)
-    starrer = db.Column(db.String(64)  , index = True)
-
+    starrer = db.Column(db.String(64), index=True)
